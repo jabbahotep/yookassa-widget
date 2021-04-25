@@ -17,7 +17,6 @@ var (
 	cfg            *viper.Viper
 	shopID         string
 	secretKey      string
-	idempotenceKey string
 	locale         string
 )
 
@@ -71,7 +70,7 @@ func init() {
 
 	// READING CONFIG
 	cfg = viper.New()
-	cfg.SetConfigName("config")
+	cfg.SetConfigName("conf")
 	cfg.AddConfigPath("./")
 	err := cfg.ReadInConfig()
 	if err != nil {
@@ -79,7 +78,6 @@ func init() {
 	}
 	shopID = cfg.GetString("shopID")
 	secretKey = cfg.GetString("secretKey")
-	idempotenceKey = cfg.GetString("idempotenceKey")
 	locale = cfg.GetString("locale")
 }
 
@@ -110,9 +108,10 @@ func createPayment(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
 	var body = new(struct {
-		invoice   int                   `json:"invoice"`
-		amount    float64               `json:"amount"`
-		currency  string                `json:"currency"`
+		invoice         int                   `json:"invoice"`
+		amount          float64               `json:"amount"`
+		currency        string                `json:"currency"`
+		idempotenceKey  string                `json:"idempotence_key"`
 	})
 
 	err := json.NewDecoder(r.Body).Decode(body)
@@ -160,7 +159,7 @@ func createPayment(w http.ResponseWriter, r *http.Request) {
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonQuery))
 	req.Header.Set(shopID, secretKey)
-	req.Header.Set("Idempotence-Key", idempotenceKey)
+	req.Header.Set("Idempotence-Key", body.idempotenceKey)
 	req.Header.Set("Content-Type", "application/json")
 
 	client := &http.Client{}
