@@ -1,0 +1,9 @@
+---
+shopID: YourYooKassaShopID
+secretKey: YourYooKassaSecretKey
+idempotenceKey: YourYooKassaIdempotenceKey
+locale: en_US
+bindIP: LocalServerIP
+bindPort: ServicePort
+sslCert: ""
+privateKey: ""
